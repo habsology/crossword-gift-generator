@@ -1,0 +1,57 @@
+{
+ "title": "Fourteen Things I Love About You",
+ "subtitle": "A Valentine's crossword for Dana",
+ "footer": "Sample puzzle. Names and facts are fictional.",
+ "word_search": false,
+ "seed": 10,
+ "entries": [
+  {
+   "word": "Dana",
+   "clue": "You"
+  },
+  {
+   "word": "Thai",
+   "clue": "Our first dinner"
+  },
+  {
+   "word": "Sunday",
+   "clue": "Our lazy day"
+  },
+  {
+   "word": "Jazz",
+   "clue": "Your late-night playlist"
+  },
+  {
+   "word": "Kingston",
+   "clue": "Where we met"
+  },
+  {
+   "word": "Pottery",
+   "clue": "The class we failed together"
+  },
+  {
+   "word": "Marshmallow",
+   "clue": "Your campfire specialty"
+  },
+  {
+   "word": "Rain",
+   "clue": "You like it, somehow"
+  },
+  {
+   "word": "Mango",
+   "clue": "Your favourite fruit"
+  },
+  {
+   "word": "Puzzle",
+   "clue": "What you are, in the best way"
+  },
+  {
+   "word": "Cottage",
+   "clue": "Our summer plan"
+  },
+  {
+   "word": "Laugh",
+   "clue": "The thing I fell for first"
+  }
+ ]
+}

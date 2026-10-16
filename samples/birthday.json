@@ -1,0 +1,65 @@
+{
+ "title": "Dad Turns 60",
+ "subtitle": "Sixty clues would be too many, so here are fourteen",
+ "footer": "Sample puzzle. Names and facts are fictional.",
+ "word_search": false,
+ "seed": 5,
+ "entries": [
+  {
+   "word": "Sudbury",
+   "clue": "Where he grew up"
+  },
+  {
+   "word": "Corolla",
+   "clue": "The car he drove for 19 years"
+  },
+  {
+   "word": "Habs",
+   "clue": "His team, through thick and thin"
+  },
+  {
+   "word": "Fishing",
+   "clue": "Saturday mornings on the lake"
+  },
+  {
+   "word": "Dadjoke",
+   "clue": "His art form, one word"
+  },
+  {
+   "word": "Garage",
+   "clue": "Where he goes to think"
+  },
+  {
+   "word": "Rye",
+   "clue": "His drink, with ginger ale"
+  },
+  {
+   "word": "Nineteen",
+   "clue": "Years in the same house"
+  },
+  {
+   "word": "Beatles",
+   "clue": "The only band that counts"
+  },
+  {
+   "word": "Ladder",
+   "clue": "The thing Mom told him to stop climbing"
+  },
+  {
+   "word": "Poutine",
+   "clue": "His weakness"
+  },
+  {
+   "word": "Golf",
+   "clue": "The hobby with no improvement"
+  },
+  {
+   "word": "Grandpa",
+   "clue": "His newest title"
+  },
+  {
+   "word": "Sixty",
+   "clue": "The number on the cake"
+  }
+ ]
+}

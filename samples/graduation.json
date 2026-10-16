@@ -1,0 +1,57 @@
+{
+ "title": "Congratulations, Dr. Chen",
+ "subtitle": "Ten years, one crossword",
+ "footer": "Sample puzzle. Names and facts are fictional.",
+ "word_search": true,
+ "seed": 8,
+ "entries": [
+  {
+   "word": "Thesis",
+   "clue": "The 212-page document nobody will read"
+  },
+  {
+   "word": "Montreal",
+   "clue": "Where the degree was earned"
+  },
+  {
+   "word": "Espresso",
+   "clue": "Chapter 3 was written on this"
+  },
+  {
+   "word": "Defense",
+   "clue": "The day of the big questions"
+  },
+  {
+   "word": "Zebrafish",
+   "clue": "The subject of a decade of study"
+  },
+  {
+   "word": "Pipette",
+   "clue": "The tool that caused the wrist brace"
+  },
+  {
+   "word": "Advisor",
+   "clue": "Said 'one more experiment' eleven times"
+  },
+  {
+   "word": "Reviewer",
+   "clue": "The anonymous enemy, number two"
+  },
+  {
+   "word": "Lab",
+   "clue": "Home, basically"
+  },
+  {
+   "word": "Poster",
+   "clue": "The conference thing with too much text"
+  },
+  {
+   "word": "Bike",
+   "clue": "Commute, in all weather"
+  },
+  {
+   "word": "Mei",
+   "clue": "The new doctor, first name"
+  }
+ ]
+}

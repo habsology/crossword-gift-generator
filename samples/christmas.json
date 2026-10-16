@@ -1,0 +1,57 @@
+{
+ "title": "The Nguyen Family Christmas Crossword",
+ "subtitle": "Solve it before the turkey is ready",
+ "footer": "Sample puzzle. Names and facts are fictional.",
+ "word_search": true,
+ "seed": 4,
+ "entries": [
+  {
+   "word": "Turkey",
+   "clue": "Dad's annual 6am project"
+  },
+  {
+   "word": "Eggnog",
+   "clue": "Grandma adds too much of the special ingredient"
+  },
+  {
+   "word": "Muskoka",
+   "clue": "Where the cottage is"
+  },
+  {
+   "word": "Penguin",
+   "clue": "The ornament that always goes on first"
+  },
+  {
+   "word": "Monopoly",
+   "clue": "The game that ended Christmas 2019"
+  },
+  {
+   "word": "Whistler",
+   "clue": "The ski trip nobody can afford"
+  },
+  {
+   "word": "Minh",
+   "clue": "The youngest, loudest cousin"
+  },
+  {
+   "word": "Snow",
+   "clue": "The thing we pray for and complain about"
+  },
+  {
+   "word": "Mittens",
+   "clue": "The cat, not the clothing"
+  },
+  {
+   "word": "Carols",
+   "clue": "Sung badly, at volume"
+  },
+  {
+   "word": "Oranges",
+   "clue": "Always in the stocking toe"
+  },
+  {
+   "word": "Elf",
+   "clue": "The movie, every year, twice"
+  }
+ ]
+}

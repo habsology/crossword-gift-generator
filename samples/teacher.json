@@ -1,0 +1,57 @@
+{
+ "title": "Thank You, Mr. Patel",
+ "subtitle": "From Room 12, with gratitude",
+ "footer": "Sample puzzle. Names and facts are fictional.",
+ "word_search": true,
+ "seed": 6,
+ "entries": [
+  {
+   "word": "Fractions",
+   "clue": "The unit we finally understood"
+  },
+  {
+   "word": "Stapler",
+   "clue": "The one we were never allowed to touch"
+  },
+  {
+   "word": "Ukulele",
+   "clue": "Friday afternoon music"
+  },
+  {
+   "word": "Oregon",
+   "clue": "Where he went on his honeymoon, apparently"
+  },
+  {
+   "word": "Patience",
+   "clue": "What he had, somehow"
+  },
+  {
+   "word": "Sticker",
+   "clue": "The reward we were too old for but wanted"
+  },
+  {
+   "word": "Lego",
+   "clue": "The bridge challenge"
+  },
+  {
+   "word": "Hockey",
+   "clue": "Recess, every day, even in June"
+  },
+  {
+   "word": "Raven",
+   "clue": "Our class mascot"
+  },
+  {
+   "word": "Quiet",
+   "clue": "The word on the mysterious hand signal"
+  },
+  {
+   "word": "Mystery",
+   "clue": "The genre he read aloud"
+  },
+  {
+   "word": "Twelve",
+   "clue": "Our room number"
+  }
+ ]
+}

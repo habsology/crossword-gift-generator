@@ -1,0 +1,57 @@
+{
+ "title": "The Garcias' First House",
+ "subtitle": "Solve it, then help us unpack",
+ "footer": "Sample puzzle. Names and facts are fictional.",
+ "word_search": false,
+ "seed": 9,
+ "entries": [
+  {
+   "word": "Porch",
+   "clue": "The reason they bought it"
+  },
+  {
+   "word": "Furnace",
+   "clue": "The reason the inspector frowned"
+  },
+  {
+   "word": "Oakville",
+   "clue": "The new postal code town"
+  },
+  {
+   "word": "Boxes",
+   "clue": "Forty-one of them"
+  },
+  {
+   "word": "Pizza",
+   "clue": "Moving day fuel"
+  },
+  {
+   "word": "Hammock",
+   "clue": "Backyard priority number one"
+  },
+  {
+   "word": "Mortgage",
+   "clue": "The new roommate"
+  },
+  {
+   "word": "Pepper",
+   "clue": "The cat, now with stairs"
+  },
+  {
+   "word": "Ikea",
+   "clue": "Six trips in one weekend"
+  },
+  {
+   "word": "Lemon",
+   "clue": "The colour of the front door, for now"
+  },
+  {
+   "word": "Shed",
+   "clue": "Future workshop, current spider farm"
+  },
+  {
+   "word": "Keys",
+   "clue": "Handed over on a rainy Tuesday"
+  }
+ ]
+}

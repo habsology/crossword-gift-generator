@@ -1,0 +1,61 @@
+{
+ "title": "Jordan & Alex: The Wedding Crossword",
+ "subtitle": "Sip and solve while we sign the papers",
+ "footer": "Sample puzzle. Names and facts are fictional.",
+ "word_search": false,
+ "seed": 1,
+ "entries": [
+  {
+   "word": "Hinge",
+   "clue": "Where they first matched"
+  },
+  {
+   "word": "Tacos",
+   "clue": "The first date, Tuesday special"
+  },
+  {
+   "word": "Ottawa",
+   "clue": "Hometown of the bride"
+  },
+  {
+   "word": "Halifax",
+   "clue": "Hometown of the groom"
+  },
+  {
+   "word": "Maple",
+   "clue": "The cake flavour"
+  },
+  {
+   "word": "June",
+   "clue": "Wedding month"
+  },
+  {
+   "word": "Banff",
+   "clue": "Where the ring came out"
+  },
+  {
+   "word": "Nova",
+   "clue": "The cat who runs the house"
+  },
+  {
+   "word": "Vinyl",
+   "clue": "His collection, her veto power"
+  },
+  {
+   "word": "Sourdough",
+   "clue": "Pandemic hobby that stuck"
+  },
+  {
+   "word": "Ireland",
+   "clue": "Honeymoon destination"
+  },
+  {
+   "word": "Pizza",
+   "clue": "Friday night, no exceptions"
+  },
+  {
+   "word": "Chess",
+   "clue": "Who wins is a sore subject"
+  }
+ ]
+}

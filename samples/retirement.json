@@ -1,0 +1,57 @@
+{
+ "title": "Thirty-Two Years of Mrs. Okafor",
+ "subtitle": "A retirement crossword from the Grade 4 class",
+ "footer": "Sample puzzle. Names and facts are fictional.",
+ "word_search": true,
+ "seed": 2,
+ "entries": [
+  {
+   "word": "Recess",
+   "clue": "Her favourite subject, allegedly"
+  },
+  {
+   "word": "Volcano",
+   "clue": "The science fair project that went wrong"
+  },
+  {
+   "word": "Chalk",
+   "clue": "What she refused to give up for whiteboards"
+  },
+  {
+   "word": "Library",
+   "clue": "Where she hid on Fridays"
+  },
+  {
+   "word": "Pencil",
+   "clue": "The one thing she always had behind her ear"
+  },
+  {
+   "word": "Garden",
+   "clue": "Her retirement plan"
+  },
+  {
+   "word": "Portugal",
+   "clue": "First trip on the list"
+  },
+  {
+   "word": "Juniper",
+   "clue": "Her dog, who visited every June"
+  },
+  {
+   "word": "Cursive",
+   "clue": "The lost art she taught anyway"
+  },
+  {
+   "word": "Coffee",
+   "clue": "Fuel, black, no sugar"
+  },
+  {
+   "word": "Reading",
+   "clue": "The corner with the beanbags"
+  },
+  {
+   "word": "Rosa",
+   "clue": "Her first name, which no one may use"
+  }
+ ]
+}

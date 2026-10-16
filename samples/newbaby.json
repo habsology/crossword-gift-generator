@@ -1,0 +1,57 @@
+{
+ "title": "Welcome, Baby Elliot",
+ "subtitle": "A crossword for the shower",
+ "footer": "Sample puzzle. Names and facts are fictional.",
+ "word_search": false,
+ "seed": 7,
+ "entries": [
+  {
+   "word": "Elliot",
+   "clue": "The name, finally agreed on"
+  },
+  {
+   "word": "March",
+   "clue": "Due month"
+  },
+  {
+   "word": "Naps",
+   "clue": "What the parents will miss"
+  },
+  {
+   "word": "Stroller",
+   "clue": "The thing that cost more than the car"
+  },
+  {
+   "word": "Owl",
+   "clue": "Nursery theme"
+  },
+  {
+   "word": "Winnipeg",
+   "clue": "Where grandma is flying in from"
+  },
+  {
+   "word": "Pickles",
+   "clue": "The craving"
+  },
+  {
+   "word": "Daisy",
+   "clue": "The dog who is about to be demoted"
+  },
+  {
+   "word": "Swaddle",
+   "clue": "The origami nobody can do"
+  },
+  {
+   "word": "Lullaby",
+   "clue": "Sung off key"
+  },
+  {
+   "word": "Diapers",
+   "clue": "The gift everyone secretly wants to give"
+  },
+  {
+   "word": "Rocking",
+   "clue": "The chair that will see 3am often"
+  }
+ ]
+}
