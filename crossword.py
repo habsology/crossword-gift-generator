@@ -167,12 +167,28 @@ def word_search(words, seed=0, size=15):
             if g[r][c] is None: g[r][c] = rng.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
     return g, placed
 
-def draw_grid(cv, grid, nums, x0, y0, cell, solution=False, ws=None):
+FONT_DIR = "/usr/share/fonts/truetype/crosextra"
+FONTS = {"title": "Helvetica-Bold", "body": "Helvetica", "bold": "Helvetica-Bold", "italic": "Helvetica-Oblique"}
+
+def _register_fonts():
+    """Use Caladea (serif) for titles and Carlito (sans) for text when installed; fall back to Helvetica."""
+    try:
+        from reportlab.pdfbase import pdfmetrics
+        from reportlab.pdfbase.ttfonts import TTFont
+        pdfmetrics.registerFont(TTFont("Caladea-Bold", f"{FONT_DIR}/Caladea-Bold.ttf"))
+        pdfmetrics.registerFont(TTFont("Caladea-Italic", f"{FONT_DIR}/Caladea-Italic.ttf"))
+        pdfmetrics.registerFont(TTFont("Carlito", f"{FONT_DIR}/Carlito-Regular.ttf"))
+        pdfmetrics.registerFont(TTFont("Carlito-Bold", f"{FONT_DIR}/Carlito-Bold.ttf"))
+        FONTS.update(title="Caladea-Bold", body="Carlito", bold="Carlito-Bold", italic="Caladea-Italic")
+    except Exception:
+        pass
+
+def draw_grid(cv, grid, nums, x0, y0, cell, solution=False, ws=None, accent=None):
     if ws is not None:
         for r, row in enumerate(ws):
             for c, ch in enumerate(row):
-                cv.setFont("Helvetica", cell * 0.55)
-                cv.drawCentredString(x0 + c * cell + cell / 2, y0 - r * cell - cell * 0.68, ch)
+                cv.setFont(FONTS["body"], cell * 0.6)
+                cv.drawCentredString(x0 + c * cell + cell / 2, y0 - r * cell - cell * 0.7, ch)
         return
     r0, r1, c0, c1 = grid.bounds()
     for r in range(r0, r1 + 1):
@@ -180,77 +196,119 @@ def draw_grid(cv, grid, nums, x0, y0, cell, solution=False, ws=None):
             ch = grid.cells[r][c]
             if not ch: continue
             x, y = x0 + (c - c0) * cell, y0 - (r - r0 + 1) * cell
-            cv.setStrokeColor(colors.black); cv.setLineWidth(0.8)
-            cv.rect(x, y, cell, cell, fill=0)
+            cv.setFillColor(colors.white); cv.setStrokeColor(colors.HexColor("#222222")); cv.setLineWidth(0.9)
+            cv.rect(x, y, cell, cell, fill=1)
+            cv.setFillColor(colors.black)
             if (r, c) in nums:
-                cv.setFont("Helvetica", cell * 0.28)
-                cv.drawString(x + 1.5, y + cell - cell * 0.32, str(nums[(r, c)]))
+                cv.setFont(FONTS["body"], cell * 0.3)
+                cv.drawString(x + 1.6, y + cell - cell * 0.33, str(nums[(r, c)]))
             if solution:
-                cv.setFont("Helvetica-Bold", cell * 0.55)
-                cv.drawCentredString(x + cell / 2, y + cell * 0.25, ch)
+                cv.setFont(FONTS["bold"], cell * 0.56)
+                cv.setFillColor(accent or colors.black)
+                cv.drawCentredString(x + cell / 2, y + cell * 0.24, ch)
+                cv.setFillColor(colors.black)
+
+def _wrap(text, font, size, width):
+    from reportlab.lib.utils import simpleSplit
+    return simpleSplit(text, font, size, width)
+
+def _clue_columns(cv, across, down, x_left, y_top, col_w, gap, size=11.5, lead=15):
+    """Draw ACROSS and DOWN clue lists in two columns. Returns the lowest y reached."""
+    lowest = y_top
+    for i, (label, lst) in enumerate((("ACROSS", across), ("DOWN", down))):
+        x = x_left + i * (col_w + gap)
+        y = y_top
+        cv.setFont(FONTS["bold"], 11); cv.drawString(x, y, label); y -= lead * 1.25
+        for n, w, clue in lst:
+            lines = _wrap(f"{n}.  {clue} ({len(w)})", FONTS["body"], size, col_w - 4)
+            for j, line in enumerate(lines):
+                cv.setFont(FONTS["body"], size)
+                cv.drawString(x + (14 if j else 0), y, line); y -= lead
+        lowest = min(lowest, y)
+    return lowest
 
 def render(order, out, pagesize=None):
     """Render an order to `out`. pagesize: None/"letter" (default) or "a4"; the order's
-    "paper" key ("letter" or "a4") is used when pagesize is not given."""
+    "paper" key ("letter" or "a4") is used when pagesize is not given.
+    Page 1 holds the puzzle grid and the clues together; then the optional word search; then the answer key."""
+    _register_fonts()
     entries = order["entries"]
     grid, leftover = build(entries, seed=order.get("seed", 0))
     nums, across, down = number(grid)
     paper = (pagesize or order.get("paper") or "letter").lower()
     W, H = A4 if paper == "a4" else letter
+    accent = colors.HexColor(order.get("accent", "#8C2F39"))
     cv = canvas.Canvas(out, pagesize=(W, H))
     cv.setTitle(order.get("title", "Custom crossword"))
     title, sub, foot = order.get("title", ""), order.get("subtitle", ""), order.get("footer", "")
+    M = 0.6 * inch  # page margin
 
-    def header(page_title):
-        cv.setFont("Helvetica-Bold", 22); cv.drawCentredString(W / 2, H - 0.9 * inch, title)
-        cv.setFont("Helvetica", 12); cv.drawCentredString(W / 2, H - 1.2 * inch, page_title if not sub else f"{sub}  |  {page_title}")
+    def frame():
+        cv.setStrokeColor(accent); cv.setLineWidth(1.2)
+        cv.rect(M * 0.6, M * 0.6, W - M * 1.2, H - M * 1.2)
+        cv.setLineWidth(0.4)
+        cv.rect(M * 0.6 + 4, M * 0.6 + 4, W - M * 1.2 - 8, H - M * 1.2 - 8)
+
+    def header(page_label):
+        frame()
+        cv.setFillColor(colors.black)
+        size = 24 if len(title) <= 34 else 19
+        cv.setFont(FONTS["title"], size); cv.drawCentredString(W / 2, H - 1.15 * inch, title)
+        cv.setFillColor(accent); cv.setFont(FONTS["italic"], 12)
+        cv.drawCentredString(W / 2, H - 1.42 * inch, sub if sub else page_label)
+        cv.setStrokeColor(accent); cv.setLineWidth(0.8)
+        cv.line(W / 2 - 1.1 * inch, H - 1.56 * inch, W / 2 + 1.1 * inch, H - 1.56 * inch)
+        cv.setFillColor(colors.HexColor("#555555")); cv.setFont(FONTS["body"], 8.5)
+        cv.drawRightString(W - M - 2, M * 0.6 + 10, page_label.upper())
         if foot:
-            cv.setFont("Helvetica-Oblique", 9); cv.drawCentredString(W / 2, 0.6 * inch, foot)
+            cv.setFont(FONTS["italic"], 9); cv.drawCentredString(W / 2, M * 0.6 + 10, foot)
+        cv.setFillColor(colors.black)
 
     r0, r1, c0, c1 = grid.bounds()
-    span = max(r1 - r0, c1 - c0) + 1
-    cell = min(0.42 * inch, 6.8 * inch / span)
-    gx = (W - (c1 - c0 + 1) * cell) / 2
-    gy = H - 1.6 * inch
-
-    # Page 1: puzzle grid
+    rows, cols = r1 - r0 + 1, c1 - c0 + 1
+    # Page 1: grid sized so the clues fit underneath (two columns)
+    n_clues = len(across) + len(down)
+    clue_rows = max(len(across), len(down)) + 1
+    clue_h = clue_rows * 15 + 0.35 * inch
+    avail_h = H - 1.85 * inch - clue_h - M
+    cell = min(0.4 * inch, avail_h / rows, (W - 2 * M) / cols)
+    gx = (W - cols * cell) / 2
+    gy = H - 1.8 * inch
     header("Puzzle")
     draw_grid(cv, grid, nums, gx, gy, cell)
+    col_gap = 0.35 * inch
+    col_w = (W - 2 * M - col_gap) / 2
+    y_top = gy - rows * cell - 0.42 * inch
+    low = _clue_columns(cv, across, down, M, y_top, col_w, col_gap)
+    if low < M * 0.6 + 24:  # very long clue lists spill to a second page
+        cv.showPage(); header("Clues")
+        _clue_columns(cv, across, down, M, H - 1.85 * inch, col_w, col_gap)
     cv.showPage()
 
-    # Page 2: clues
-    header("Clues")
-    y = H - 1.7 * inch
-    for label, lst in (("ACROSS", across), ("DOWN", down)):
-        cv.setFont("Helvetica-Bold", 13); cv.drawString(1 * inch, y, label); y -= 0.26 * inch
-        cv.setFont("Helvetica", 11)
-        for n, w, clue in lst:
-            cv.drawString(1.1 * inch, y, f"{n}. {clue} ({len(w)})"); y -= 0.22 * inch
-            if y < 1 * inch: cv.showPage(); header("Clues (continued)"); y = H - 1.7 * inch
-        y -= 0.2 * inch
-    cv.showPage()
-
-    # Page 3: optional word search
+    # Optional word search
     ws_placed = []
     if order.get("word_search"):
         words = [w for (w, *_rest) in grid.placed] + [w for w, _ in leftover]
         ws, ws_placed = word_search(words, seed=order.get("seed", 0))
-        header("Word search")
+        header("Bonus word search")
         wcell = 0.4 * inch
-        wx, wy = (W - 15 * wcell) / 2, H - 1.6 * inch
+        wx, wy = (W - 15 * wcell) / 2, H - 1.95 * inch
+        cv.setStrokeColor(accent); cv.setLineWidth(0.8)
+        cv.rect(wx - 6, wy - 15 * wcell - 6, 15 * wcell + 12, 15 * wcell + 12)
         draw_grid(cv, None, None, wx, wy, wcell, ws=ws)
-        cv.setFont("Helvetica", 10)
-        y = wy - 15 * wcell - 0.3 * inch
-        line = "   ".join(w for w, *_ in ws_placed)
-        words_per_line = 6
+        cv.setFont(FONTS["bold"], 10.5)
+        y = wy - 15 * wcell - 0.45 * inch
+        cv.drawCentredString(W / 2, y, "FIND THESE WORDS"); y -= 0.26 * inch
+        cv.setFont(FONTS["body"], 10.5)
         ws_words = [w for w, *_ in ws_placed]
-        for i in range(0, len(ws_words), words_per_line):
-            cv.drawCentredString(W / 2, y, "   ".join(ws_words[i:i + words_per_line])); y -= 0.2 * inch
+        for i in range(0, len(ws_words), 6):
+            cv.drawCentredString(W / 2, y, "     ".join(ws_words[i:i + 6])); y -= 0.21 * inch
         cv.showPage()
 
-    # Last page: solutions
-    header("Solution")
-    draw_grid(cv, grid, nums, gx, gy, cell, solution=True)
+    # Last page: answer key
+    header("Answer key")
+    draw_grid(cv, grid, nums, gx, gy, cell, solution=True, accent=accent)
+    low = _clue_columns(cv, across, down, M, y_top, col_w, col_gap)
     cv.save()
     return grid, leftover, ws_placed
 
