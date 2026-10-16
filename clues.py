@@ -106,13 +106,47 @@ def validate(pairs, n=14, source=None):
     return out, rejected
 
 
-def mock_pairs(memories, n=14):
-    """Deterministic stand-in for the model: capitalized words from the text with a template clue."""
-    words = []
-    for tok in re.findall(r"\b[A-Z][a-z]{2,14}\b", memories):
-        if tok not in words:
-            words.append(tok)
-    return [(w, f"From your story: {w[0]}...") for w in words[:n]]
+_STOP = set(
+    "THE AND BUT FOR WITH THAT THIS THEY THEM THEIR THEN THAN WHEN WHERE WHILE WHICH WHOSE WHAT WHO HAS HAVE HAD "
+    "WAS WERE ARE BEEN BOTH EACH EVERY FIRST ALSO ONLY JUST VERY FROM INTO OVER AFTER BEFORE ABOUT ONCE SOME "
+    "MANY MUCH MOST SUCH THESE THOSE ALWAYS NEVER STILL EVEN YEAR YEARS DAY DAYS TIME".split()
+)
+
+
+def mock_pairs(memories, n=14, per_sentence=2):
+    """Deterministic stand-in for the model. Picks names and distinctive words from the text and
+    writes fill-in-the-blank clues from the sentence each one appears in, so a demo run reads like
+    a real puzzle: 'Sam proposed in ____'. Proper nouns first, then longer plain words."""
+    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+|\n+", memories) if s.strip()]
+    cands = []  # (priority, order, word, sentence index)
+    seen = set()
+    for si, sent in enumerate(sentences):
+        for m in re.finditer(r"[A-Za-z][A-Za-z'-]*", sent):
+            tok = m.group(0)
+            w = clean(tok)
+            if w in seen or w in _STOP or not 3 <= len(w) <= 15:
+                continue
+            capital = tok[0].isupper()
+            if not capital and len(w) < 5:
+                continue
+            seen.add(w)
+            cands.append((0 if capital else 1, len(cands), tok, si))
+    cands.sort(key=lambda c: (c[0], c[1]))
+    used, pairs = {}, []
+    for _, _, tok, si in cands:
+        if used.get(si, 0) >= per_sentence:
+            continue
+        used[si] = used.get(si, 0) + 1
+        blank = re.sub(r"\b" + re.escape(tok) + r"\b", "____", sentences[si], flags=re.I).rstrip(".!? ")
+        words = blank.split()
+        if len(words) > 12:  # keep a window around the blank
+            k = next(i for i, x in enumerate(words) if "____" in x)
+            lo = max(0, min(k - 5, len(words) - 12))
+            blank = " ".join(words[lo:lo + 12])
+        pairs.append((tok, blank))
+        if len(pairs) == n:
+            break
+    return pairs
 
 
 def build_order(memories, title, occasion="gift", n=14, mock=False, subtitle=None, footer=None, seed=0):
