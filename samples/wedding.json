@@ -2,7 +2,7 @@
  "title": "Jordan & Alex: The Wedding Crossword",
  "subtitle": "Sip and solve while we sign the papers",
  "footer": "Sample puzzle. Names and facts are fictional.",
- "word_search": false,
+ "word_search": true,
  "accent": "#5B6B4A", "seed": 1,
  "entries": [
   {
@@ -15,7 +15,7 @@
   },
   {
    "word": "Ottawa",
-   "clue": "Hometown of the bride"
+   "clue": "Hometown of the one who proposed"
   },
   {
    "word": "Halifax",
@@ -39,7 +39,7 @@
   },
   {
    "word": "Vinyl",
-   "clue": "His collection, her veto power"
+   "clue": "The record collection one of them keeps, the other tolerates"
   },
   {
    "word": "Sourdough",

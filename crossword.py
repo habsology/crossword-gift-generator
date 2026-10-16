@@ -14,8 +14,8 @@ order.json:
 }
 
 Words: letters only (spaces and hyphens are stripped), 3 to 15 letters, 8 to 20 entries work best.
-Output: a print-ready PDF (US Letter) with the puzzle page, a clues page, an optional word search,
-and a solutions page. Deterministic for a given order (seeded), so re-runs reproduce the same grid.
+Output: a print-ready PDF (US Letter) with the puzzle page (grid and clues), an optional word search, the answer key
+and a frame-ready keepsake page (solved grid, no label or footer). Deterministic for a given order (seeded), so re-runs reproduce the same grid.
 """
 import json, random, re, sys
 from reportlab.lib.pagesizes import letter, A4
@@ -230,7 +230,8 @@ def _clue_columns(cv, across, down, x_left, y_top, col_w, gap, size=11.5, lead=1
 def render(order, out, pagesize=None):
     """Render an order to `out`. pagesize: None/"letter" (default) or "a4"; the order's
     "paper" key ("letter" or "a4") is used when pagesize is not given.
-    Page 1 holds the puzzle grid and the clues together; then the optional word search; then the answer key."""
+    Page 1 holds the puzzle grid and the clues together; then the optional word search; then the answer key;
+    then (unless "keepsake" is false) a keepsake page: the solved puzzle with no page label or footer."""
     _register_fonts()
     entries = order["entries"]
     grid, leftover = build(entries, seed=order.get("seed", 0))
@@ -249,7 +250,8 @@ def render(order, out, pagesize=None):
         cv.setLineWidth(0.4)
         cv.rect(M * 0.6 + 4, M * 0.6 + 4, W - M * 1.2 - 8, H - M * 1.2 - 8)
 
-    def header(page_label):
+    def header(page_label, working=True):
+        """Title block and frame. working=False leaves off the page label and footer (keepsake page)."""
         frame()
         cv.setFillColor(colors.black)
         size = 24 if len(title) <= 34 else 19
@@ -258,10 +260,11 @@ def render(order, out, pagesize=None):
         cv.drawCentredString(W / 2, H - 1.42 * inch, sub if sub else page_label)
         cv.setStrokeColor(accent); cv.setLineWidth(0.8)
         cv.line(W / 2 - 1.1 * inch, H - 1.56 * inch, W / 2 + 1.1 * inch, H - 1.56 * inch)
-        cv.setFillColor(colors.HexColor("#555555")); cv.setFont(FONTS["body"], 8.5)
-        cv.drawRightString(W - M - 2, M * 0.6 + 10, page_label.upper())
-        if foot:
-            cv.setFont(FONTS["italic"], 9); cv.drawCentredString(W / 2, M * 0.6 + 10, foot)
+        if working:
+            cv.setFillColor(colors.HexColor("#555555")); cv.setFont(FONTS["body"], 8.5)
+            cv.drawRightString(W - M - 2, M * 0.6 + 10, page_label.upper())
+            if foot:
+                cv.setFont(FONTS["italic"], 9); cv.drawCentredString(W / 2, M * 0.6 + 10, foot)
         cv.setFillColor(colors.black)
 
     r0, r1, c0, c1 = grid.bounds()
@@ -305,10 +308,16 @@ def render(order, out, pagesize=None):
             cv.drawCentredString(W / 2, y, "     ".join(ws_words[i:i + 6])); y -= 0.21 * inch
         cv.showPage()
 
-    # Last page: answer key
+    # Answer key
     header("Answer key")
     draw_grid(cv, grid, nums, gx, gy, cell, solution=True, accent=accent)
-    low = _clue_columns(cv, across, down, M, y_top, col_w, col_gap)
+    _clue_columns(cv, across, down, M, y_top, col_w, col_gap)
+    # Last page: keepsake, the solved puzzle with no page label or footer, ready to frame
+    if order.get("keepsake", True):
+        cv.showPage()
+        header("Keepsake", working=False)
+        draw_grid(cv, grid, nums, gx, gy, cell, solution=True, accent=accent)
+        _clue_columns(cv, across, down, M, y_top, col_w, col_gap)
     cv.save()
     return grid, leftover, ws_placed
 

@@ -2,7 +2,7 @@
  "title": "The Garcias' First House",
  "subtitle": "Solve it, then help us unpack",
  "footer": "Sample puzzle. Names and facts are fictional.",
- "word_search": false,
+ "word_search": true,
  "accent": "#7A5A3C", "seed": 9,
  "entries": [
   {

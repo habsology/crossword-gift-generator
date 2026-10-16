@@ -2,7 +2,7 @@
  "title": "Fourteen Things I Love About You",
  "subtitle": "A Valentine's crossword for Dana",
  "footer": "Sample puzzle. Names and facts are fictional.",
- "word_search": false,
+ "word_search": true,
  "accent": "#B4294E", "seed": 10,
  "entries": [
   {

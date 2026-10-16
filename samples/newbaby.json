@@ -2,7 +2,7 @@
  "title": "Welcome, Baby Elliot",
  "subtitle": "A crossword for the shower",
  "footer": "Sample puzzle. Names and facts are fictional.",
- "word_search": false,
+ "word_search": true,
  "accent": "#3C7A96", "seed": 7,
  "entries": [
   {
