@@ -3,7 +3,7 @@
  "subtitle": "A retirement crossword from the Grade 4 class",
  "footer": "Sample puzzle. Names and facts are fictional.",
  "word_search": true,
- "seed": 2,
+ "accent": "#2F4A6D", "seed": 2,
  "entries": [
   {
    "word": "Recess",

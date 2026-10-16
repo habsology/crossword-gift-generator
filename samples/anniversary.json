@@ -1,4 +1,4 @@
-{"title": "Happy 10th Anniversary, Sam & Priya", "subtitle": "A crossword made from your story", "footer": "Sample puzzle. Names and facts are fictional.", "word_search": true, "seed": 3,
+{"title": "Happy 10th Anniversary, Sam & Priya", "subtitle": "A crossword made from your story", "footer": "Sample puzzle. Names and facts are fictional.", "word_search": true, "accent": "#8C2F39", "seed": 3,
  "entries": [
   {"word": "Lisbon", "clue": "City where the proposal happened"},
   {"word": "Tiramisu", "clue": "The dessert you order every single time"},

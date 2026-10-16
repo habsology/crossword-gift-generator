@@ -3,7 +3,7 @@
  "subtitle": "A crossword for the shower",
  "footer": "Sample puzzle. Names and facts are fictional.",
  "word_search": false,
- "seed": 7,
+ "accent": "#3C7A96", "seed": 7,
  "entries": [
   {
    "word": "Elliot",

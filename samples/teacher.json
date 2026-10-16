@@ -3,7 +3,7 @@
  "subtitle": "From Room 12, with gratitude",
  "footer": "Sample puzzle. Names and facts are fictional.",
  "word_search": true,
- "seed": 6,
+ "accent": "#8A6D0B", "seed": 6,
  "entries": [
   {
    "word": "Fractions",

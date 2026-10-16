@@ -3,7 +3,7 @@
  "subtitle": "A Valentine's crossword for Dana",
  "footer": "Sample puzzle. Names and facts are fictional.",
  "word_search": false,
- "seed": 10,
+ "accent": "#B4294E", "seed": 10,
  "entries": [
   {
    "word": "Dana",

@@ -3,7 +3,7 @@
  "subtitle": "Sip and solve while we sign the papers",
  "footer": "Sample puzzle. Names and facts are fictional.",
  "word_search": false,
- "seed": 1,
+ "accent": "#5B6B4A", "seed": 1,
  "entries": [
   {
    "word": "Hinge",

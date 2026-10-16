@@ -3,7 +3,7 @@
  "subtitle": "Ten years, one crossword",
  "footer": "Sample puzzle. Names and facts are fictional.",
  "word_search": true,
- "seed": 8,
+ "accent": "#4B3F7A", "seed": 8,
  "entries": [
   {
    "word": "Thesis",

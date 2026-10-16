@@ -3,7 +3,7 @@
  "subtitle": "Solve it before the turkey is ready",
  "footer": "Sample puzzle. Names and facts are fictional.",
  "word_search": true,
- "seed": 4,
+ "accent": "#1F5A3A", "seed": 4,
  "entries": [
   {
    "word": "Turkey",

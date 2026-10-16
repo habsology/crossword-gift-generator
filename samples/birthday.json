@@ -3,7 +3,7 @@
  "subtitle": "Sixty clues would be too many, so here are fourteen",
  "footer": "Sample puzzle. Names and facts are fictional.",
  "word_search": false,
- "seed": 5,
+ "accent": "#B85A1B", "seed": 5,
  "entries": [
   {
    "word": "Sudbury",
