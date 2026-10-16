@@ -7,7 +7,9 @@ Two scripts:
 - `clues.py` reads the memories, asks the local model for answer words and clues, and validates them (letters only, 3 to 15 letters, no duplicates, no answer hidden in its own clue, and every answer must actually appear in the memories).
 - `crossword.py` lays the entries out on a grid and renders a print-ready PDF: puzzle page, clues page, optional word search, solutions page. Deterministic for a given order, so re-runs reproduce the same grid.
 
-![Sample puzzle](samples/christmas-preview-1.png)
+![Sample puzzle](docs/anniversary-1.jpg)
+
+![What you get](docs/anniversary-2.jpg)
 
 ## Requirements
 
