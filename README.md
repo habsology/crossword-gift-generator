@@ -11,6 +11,16 @@ Two scripts:
 
 ![What you get](docs/anniversary-2.jpg)
 
+## Quick try (no model needed)
+
+```
+pip install -r requirements.txt
+python3 clues.py samples/anniversary-memories.txt order.json --title "Happy 10th Anniversary" --mock
+python3 crossword.py order.json puzzle.pdf
+```
+
+`--mock` only picks capitalized and long words with placeholder clues, so it proves the pipeline and PDF work; real clues need the model below. On Windows use `py` instead of `python3`.
+
 ## Requirements
 
 - Python 3.10 or newer

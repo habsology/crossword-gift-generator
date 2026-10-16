@@ -19,6 +19,7 @@ import os
 import re
 import sys
 import time
+import urllib.error
 import urllib.request
 
 ENDPOINT = os.environ.get("CLUE_ENDPOINT", "http://localhost:11434/v1/chat/completions")
@@ -145,13 +146,18 @@ def main(argv=None):
     ap.add_argument("--n", type=int, default=14); ap.add_argument("--mock", action="store_true")
     ap.add_argument("--subtitle"); ap.add_argument("--footer"); ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args(argv)
-    with open(a.memories) as f:
+    with open(a.memories, encoding="utf-8") as f:
         memories = f.read()
     t0 = time.time()
-    order = build_order(memories, a.title, a.occasion, a.n, a.mock, a.subtitle, a.footer, a.seed)
+    try:
+        order = build_order(memories, a.title, a.occasion, a.n, a.mock, a.subtitle, a.footer, a.seed)
+    except urllib.error.URLError as e:
+        sys.exit(f"Could not reach the model at {ENDPOINT} ({e.reason}).\n"
+                 "Start Ollama and run `ollama pull gemma3:4b`, set CLUE_ENDPOINT/CLUE_MODEL, "
+                 "or add --mock to try the pipeline without a model.")
     print(f"model: {MODEL} at {ENDPOINT}; {time.time() - t0:.1f} s including warm-up")
     rejected = order.pop("_rejected")
-    with open(a.out, "w") as f:
+    with open(a.out, "w", encoding="utf-8") as f:
         json.dump(order, f, indent=1)
     print(f"{len(order['entries'])} entries -> {a.out}; rejected {len(rejected)}: {rejected}")
     for e in order["entries"]:
