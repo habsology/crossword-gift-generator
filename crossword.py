@@ -1,4 +1,4 @@
-"""Personalized crossword and word-search generator.
+"""Personalized crossword and word-search generator (Code Red line C).
 
 Usage:
   python3 crossword.py order.json out.pdf          # US Letter
@@ -313,6 +313,6 @@ def render(order, out, pagesize=None):
     return grid, leftover, ws_placed
 
 if __name__ == "__main__":
-    order = json.load(open(sys.argv[1], encoding="utf-8"))
+    order = json.load(open(sys.argv[1]))
     grid, leftover, _ = render(order, sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)
     print(f"placed {len(grid.placed)} words; left out: {[w for w, _ in leftover]}")

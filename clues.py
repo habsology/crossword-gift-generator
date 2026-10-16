@@ -1,4 +1,4 @@
-"""Turn a buyer's memories into crossword entries with a local open-weight model.
+"""Turn a buyer's memories into crossword entries with a local open-weight model (Code Red line C).
 
 The buyer rarely writes "WORD - clue" pairs; they write a paragraph about the person. This script
 asks a local model (Gemma via Ollama by default, any OpenAI-compatible endpoint works) to pull out
@@ -19,7 +19,6 @@ import os
 import re
 import sys
 import time
-import urllib.error
 import urllib.request
 
 ENDPOINT = os.environ.get("CLUE_ENDPOINT", "http://localhost:11434/v1/chat/completions")
@@ -106,47 +105,13 @@ def validate(pairs, n=14, source=None):
     return out, rejected
 
 
-_STOP = set(
-    "THE AND BUT FOR WITH THAT THIS THEY THEM THEIR THEN THAN WHEN WHERE WHILE WHICH WHOSE WHAT WHO HAS HAVE HAD "
-    "WAS WERE ARE BEEN BOTH EACH EVERY FIRST ALSO ONLY JUST VERY FROM INTO OVER AFTER BEFORE ABOUT ONCE SOME "
-    "MANY MUCH MOST SUCH THESE THOSE ALWAYS NEVER STILL EVEN YEAR YEARS DAY DAYS TIME".split()
-)
-
-
-def mock_pairs(memories, n=14, per_sentence=2):
-    """Deterministic stand-in for the model. Picks names and distinctive words from the text and
-    writes fill-in-the-blank clues from the sentence each one appears in, so a demo run reads like
-    a real puzzle: 'Sam proposed in ____'. Proper nouns first, then longer plain words."""
-    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+|\n+", memories) if s.strip()]
-    cands = []  # (priority, order, word, sentence index)
-    seen = set()
-    for si, sent in enumerate(sentences):
-        for m in re.finditer(r"[A-Za-z][A-Za-z'-]*", sent):
-            tok = m.group(0)
-            w = clean(tok)
-            if w in seen or w in _STOP or not 3 <= len(w) <= 15:
-                continue
-            capital = tok[0].isupper()
-            if not capital and len(w) < 5:
-                continue
-            seen.add(w)
-            cands.append((0 if capital else 1, len(cands), tok, si))
-    cands.sort(key=lambda c: (c[0], c[1]))
-    used, pairs = {}, []
-    for _, _, tok, si in cands:
-        if used.get(si, 0) >= per_sentence:
-            continue
-        used[si] = used.get(si, 0) + 1
-        blank = re.sub(r"\b" + re.escape(tok) + r"\b", "____", sentences[si], flags=re.I).rstrip(".!? ")
-        words = blank.split()
-        if len(words) > 12:  # keep a window around the blank
-            k = next(i for i, x in enumerate(words) if "____" in x)
-            lo = max(0, min(k - 5, len(words) - 12))
-            blank = " ".join(words[lo:lo + 12])
-        pairs.append((tok, blank))
-        if len(pairs) == n:
-            break
-    return pairs
+def mock_pairs(memories, n=14):
+    """Deterministic stand-in for the model: capitalized words from the text with a template clue."""
+    words = []
+    for tok in re.findall(r"\b[A-Z][a-z]{2,14}\b", memories):
+        if tok not in words:
+            words.append(tok)
+    return [(w, f"From your story: {w[0]}...") for w in words[:n]]
 
 
 def build_order(memories, title, occasion="gift", n=14, mock=False, subtitle=None, footer=None, seed=0):
@@ -180,18 +145,13 @@ def main(argv=None):
     ap.add_argument("--n", type=int, default=14); ap.add_argument("--mock", action="store_true")
     ap.add_argument("--subtitle"); ap.add_argument("--footer"); ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args(argv)
-    with open(a.memories, encoding="utf-8") as f:
+    with open(a.memories) as f:
         memories = f.read()
     t0 = time.time()
-    try:
-        order = build_order(memories, a.title, a.occasion, a.n, a.mock, a.subtitle, a.footer, a.seed)
-    except urllib.error.URLError as e:
-        sys.exit(f"Could not reach the model at {ENDPOINT} ({e.reason}).\n"
-                 "Start Ollama and run `ollama pull gemma3:4b`, set CLUE_ENDPOINT/CLUE_MODEL, "
-                 "or add --mock to try the pipeline without a model.")
+    order = build_order(memories, a.title, a.occasion, a.n, a.mock, a.subtitle, a.footer, a.seed)
     print(f"model: {MODEL} at {ENDPOINT}; {time.time() - t0:.1f} s including warm-up")
     rejected = order.pop("_rejected")
-    with open(a.out, "w", encoding="utf-8") as f:
+    with open(a.out, "w") as f:
         json.dump(order, f, indent=1)
     print(f"{len(order['entries'])} entries -> {a.out}; rejected {len(rejected)}: {rejected}")
     for e in order["entries"]:
