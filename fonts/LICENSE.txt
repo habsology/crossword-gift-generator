@@ -1,0 +1,5 @@
+Caladea (Copyright 2012 The Caladea Project Authors, Huerta Tipografica / Google) and
+Carlito (Copyright 2013 tyPoland Lukasz Dziedzic, Google) are distributed under the
+SIL Open Font License, Version 1.1: https://openfontlicense.org/open-font-license-official-text/
+The font files in this folder are unmodified copies of the fonts-crosextra-caladea and
+fonts-crosextra-carlito packages.
