@@ -105,13 +105,28 @@ def validate(pairs, n=14, source=None):
     return out, rejected
 
 
+MOCK_STOPWORDS = {
+    "THE", "THEY", "THEIR", "THEM", "BOTH", "AND", "BUT", "FOR", "WITH", "FROM", "THAT", "THIS",
+    "THESE", "THOSE", "THEN", "WHEN", "WHERE", "WHO", "SHE", "HER", "HIS", "HIM", "OUR", "YOU",
+    "YOUR", "FIRST", "EVERY", "ALWAYS", "NEVER", "AFTER", "BEFORE", "ONE", "TWO", "ALL",
+}
+
+
 def mock_pairs(memories, n=14):
-    """Deterministic stand-in for the model: capitalized words from the text with a template clue."""
-    words = []
+    """Deterministic stand-in for the model: capitalized words from the text, clued by blanking
+    the word out of the sentence it appears in."""
+    sentences = re.split(r"(?<=[.!?])\s+", memories.strip())
+    pairs, seen = [], set()
     for tok in re.findall(r"\b[A-Z][a-z]{2,14}\b", memories):
-        if tok not in words:
-            words.append(tok)
-    return [(w, f"From your story: {w[0]}...") for w in words[:n]]
+        if tok in seen or tok.upper() in MOCK_STOPWORDS:
+            continue
+        seen.add(tok)
+        sent = next((x for x in sentences if re.search(rf"\b{tok}\b", x)), "")
+        blanked = re.sub(rf"\b{tok}\b", "____", sent).rstrip(".!? ")
+        if len(blanked.split()) < 3 or blanked.strip() == "____" or sent.lstrip().startswith(tok) and len(blanked.split()) < 4:
+            blanked = f"A word from the story, {len(tok)} letters"
+        pairs.append((tok, blanked))
+    return pairs[:n]
 
 
 def build_order(memories, title, occasion="gift", n=14, mock=False, subtitle=None, footer=None, seed=0):
