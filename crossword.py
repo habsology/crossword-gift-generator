@@ -17,7 +17,8 @@ Words: letters only (spaces and hyphens are stripped), 3 to 15 letters, 8 to 20 
 Output: a print-ready PDF (US Letter) with the puzzle page (grid and clues), an optional word search, the answer key
 and a frame-ready keepsake page (solved grid, no label or footer). Deterministic for a given order (seeded), so re-runs reproduce the same grid.
 """
-import json, random, re, sys
+import json
+import os, random, re, sys
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
@@ -167,21 +168,26 @@ def word_search(words, seed=0, size=15):
             if g[r][c] is None: g[r][c] = rng.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
     return g, placed
 
-FONT_DIR = "/usr/share/fonts/truetype/crosextra"
+FONT_DIRS = [os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts"),
+             "/usr/share/fonts/truetype/crosextra"]  # bundled copies first, then the Debian package
 FONTS = {"title": "Helvetica-Bold", "body": "Helvetica", "bold": "Helvetica-Bold", "italic": "Helvetica-Oblique"}
 
 def _register_fonts():
-    """Use Caladea (serif) for titles and Carlito (sans) for text when installed; fall back to Helvetica."""
-    try:
-        from reportlab.pdfbase import pdfmetrics
-        from reportlab.pdfbase.ttfonts import TTFont
-        pdfmetrics.registerFont(TTFont("Caladea-Bold", f"{FONT_DIR}/Caladea-Bold.ttf"))
-        pdfmetrics.registerFont(TTFont("Caladea-Italic", f"{FONT_DIR}/Caladea-Italic.ttf"))
-        pdfmetrics.registerFont(TTFont("Carlito", f"{FONT_DIR}/Carlito-Regular.ttf"))
-        pdfmetrics.registerFont(TTFont("Carlito-Bold", f"{FONT_DIR}/Carlito-Bold.ttf"))
-        FONTS.update(title="Caladea-Bold", body="Carlito", bold="Carlito-Bold", italic="Caladea-Italic")
-    except Exception:
-        pass
+    """Use Caladea (serif) for titles and Carlito (sans) for text; both ship in fonts/ (SIL Open Font
+    License). Fall back to Helvetica only if the files are missing; the layout measures whichever font
+    is in use, so clues fit either way."""
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    for d in FONT_DIRS:
+        try:
+            pdfmetrics.registerFont(TTFont("Caladea-Bold", os.path.join(d, "Caladea-Bold.ttf")))
+            pdfmetrics.registerFont(TTFont("Caladea-Italic", os.path.join(d, "Caladea-Italic.ttf")))
+            pdfmetrics.registerFont(TTFont("Carlito", os.path.join(d, "Carlito-Regular.ttf")))
+            pdfmetrics.registerFont(TTFont("Carlito-Bold", os.path.join(d, "Carlito-Bold.ttf")))
+            FONTS.update(title="Caladea-Bold", body="Carlito", bold="Carlito-Bold", italic="Caladea-Italic")
+            return
+        except Exception:
+            continue
 
 def draw_grid(cv, grid, nums, x0, y0, cell, solution=False, ws=None, accent=None):
     if ws is not None:
@@ -209,22 +215,58 @@ def draw_grid(cv, grid, nums, x0, y0, cell, solution=False, ws=None, accent=None
                 cv.setFillColor(colors.black)
 
 def _wrap(text, font, size, width):
-    from reportlab.lib.utils import simpleSplit
-    return simpleSplit(text, font, size, width)
+    """Greedy word wrap with reportlab's string widths. A trailing "(n)" length tag is glued to the
+    word before it so it never sits alone on a line."""
+    from reportlab.pdfbase.pdfmetrics import stringWidth
+    words = text.split()
+    if len(words) >= 2 and re.fullmatch(r"\(\d+\)", words[-1]):
+        words[-2:] = [words[-2] + " " + words[-1]]
+    lines, cur = [], ""
+    for w in words:
+        trial = f"{cur} {w}".strip()
+        if cur and stringWidth(trial, font, size) > width:
+            lines.append(cur); cur = w
+        else:
+            cur = trial
+    if cur: lines.append(cur)
+    return lines or [""]
 
-def _clue_columns(cv, across, down, x_left, y_top, col_w, gap, size=11.5, lead=15):
-    """Draw ACROSS and DOWN clue lists in two columns. Returns the lowest y reached."""
+CLUE_SIZES = (11.5, 10.5, 9.5, 8.5)  # body sizes tried, largest first, until the clues fit the page
+
+def _clue_layout(across, down, col_w, size):
+    """Wrap every clue at `size`. Returns (lines per column, line height, text indent):
+    each column is a list of (number_or_None, text) rows ready to draw."""
+    from reportlab.pdfbase.pdfmetrics import stringWidth
+    lead = round(size * 1.3, 1)
+    indent = stringWidth("88.", FONTS["body"], size) + 5  # room for a two-digit number plus a gap
+    cols = []
+    for lst in (across, down):
+        rows = []
+        for n, w, clue in lst:
+            lines = _wrap(f"{clue} ({len(w)})", FONTS["body"], size, col_w - indent)
+            rows.append((n, lines[0]))
+            rows.extend((None, line) for line in lines[1:])
+        cols.append(rows)
+    return cols, lead, indent
+
+def _clue_height(cols, lead):
+    """Height of the taller clue column, label included."""
+    return lead * 1.6 + max(len(c) for c in cols) * lead
+
+def _clue_columns(cv, across, down, x_left, y_top, col_w, gap, size=11.5):
+    """Draw ACROSS and DOWN clue lists in two columns with a hanging indent. Returns the lowest y reached."""
+    cols, lead, indent = _clue_layout(across, down, col_w, size)
     lowest = y_top
-    for i, (label, lst) in enumerate((("ACROSS", across), ("DOWN", down))):
+    for i, (label, rows) in enumerate(zip(("ACROSS", "DOWN"), cols)):
         x = x_left + i * (col_w + gap)
         y = y_top
-        cv.setFont(FONTS["bold"], 11); cv.drawString(x, y, label); y -= lead * 1.25
-        for n, w, clue in lst:
-            lines = _wrap(f"{n}.  {clue} ({len(w)})", FONTS["body"], size, col_w - 4)
-            for j, line in enumerate(lines):
-                cv.setFont(FONTS["body"], size)
-                cv.drawString(x + (14 if j else 0), y, line); y -= lead
-        lowest = min(lowest, y)
+        cv.setFont(FONTS["bold"], size - 0.5); cv.drawString(x, y, label); y -= lead * 1.6
+        cv.setFont(FONTS["body"], size)
+        for n, text in rows:
+            if n is not None:
+                cv.drawRightString(x + indent - 5, y, f"{n}.")
+            cv.drawString(x + indent, y, text); y -= lead
+        lowest = min(lowest, y + lead)
     return lowest
 
 def render(order, out, pagesize=None):
@@ -268,24 +310,35 @@ def render(order, out, pagesize=None):
         cv.setFillColor(colors.black)
 
     r0, r1, c0, c1 = grid.bounds()
-    rows, cols = r1 - r0 + 1, c1 - c0 + 1
-    # Page 1: grid sized so the clues fit underneath (two columns)
-    n_clues = len(across) + len(down)
-    clue_rows = max(len(across), len(down)) + 1
-    clue_h = clue_rows * 15 + 0.35 * inch
-    avail_h = H - 1.85 * inch - clue_h - M
-    cell = min(0.4 * inch, avail_h / rows, (W - 2 * M) / cols)
-    gx = (W - cols * cell) / 2
-    gy = H - 1.8 * inch
-    header("Puzzle")
-    draw_grid(cv, grid, nums, gx, gy, cell)
+    rows, cols_n = r1 - r0 + 1, c1 - c0 + 1
+    # Page 1: grid and both clue columns together. Measure the wrapped clues first, shrink the clue
+    # text (never below CLUE_SIZES[-1]) until grid and clues share the page; only if the smallest size
+    # still cannot fit do the clues move to their own page.
     col_gap = 0.35 * inch
     col_w = (W - 2 * M - col_gap) / 2
-    y_top = gy - rows * cell - 0.42 * inch
-    low = _clue_columns(cv, across, down, M, y_top, col_w, col_gap)
-    if low < M * 0.6 + 24:  # very long clue lists spill to a second page
+    top, bottom = H - 1.8 * inch, M * 0.6 + 26   # grid top; lowest baseline above the page label
+    gap_grid_clues = 0.38 * inch
+    min_cell = 0.26 * inch
+    clue_size, cell, clues_on_page1 = CLUE_SIZES[-1], min_cell, False
+    for size in CLUE_SIZES:
+        cols, lead, _ = _clue_layout(across, down, col_w, size)
+        avail_h = top - bottom - _clue_height(cols, lead) - gap_grid_clues
+        c = min(0.4 * inch, avail_h / rows, (W - 2 * M) / cols_n)
+        if c >= min_cell:
+            clue_size, cell, clues_on_page1 = size, c, True
+            break
+    if not clues_on_page1:
+        cell = min(0.4 * inch, (top - bottom) / rows, (W - 2 * M) / cols_n)
+    gx = (W - cols_n * cell) / 2
+    gy = top
+    y_top = gy - rows * cell - gap_grid_clues
+    header("Puzzle")
+    draw_grid(cv, grid, nums, gx, gy, cell)
+    if clues_on_page1:
+        _clue_columns(cv, across, down, M, y_top, col_w, col_gap, size=clue_size)
+    else:
         cv.showPage(); header("Clues")
-        _clue_columns(cv, across, down, M, H - 1.85 * inch, col_w, col_gap)
+        _clue_columns(cv, across, down, M, H - 1.85 * inch, col_w, col_gap, size=clue_size)
     cv.showPage()
 
     # Optional word search
@@ -311,13 +364,15 @@ def render(order, out, pagesize=None):
     # Answer key
     header("Answer key")
     draw_grid(cv, grid, nums, gx, gy, cell, solution=True, accent=accent)
-    _clue_columns(cv, across, down, M, y_top, col_w, col_gap)
+    if clues_on_page1:
+        _clue_columns(cv, across, down, M, y_top, col_w, col_gap, size=clue_size)
     # Last page: keepsake, the solved puzzle with no page label or footer, ready to frame
     if order.get("keepsake", True):
         cv.showPage()
         header("Keepsake", working=False)
         draw_grid(cv, grid, nums, gx, gy, cell, solution=True, accent=accent)
-        _clue_columns(cv, across, down, M, y_top, col_w, col_gap)
+        if clues_on_page1:
+            _clue_columns(cv, across, down, M, y_top, col_w, col_gap, size=clue_size)
     cv.save()
     return grid, leftover, ws_placed
 

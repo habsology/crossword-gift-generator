@@ -108,9 +108,13 @@ You can also skip `clues.py` and write `order.json` by hand. See the docstring a
 ## Tests
 
 ```
-pip install pytest
+pip install pytest pypdf
 pytest
 ```
+
+## Fonts and layout
+
+Titles use Caladea and text uses Carlito; both ship in `fonts/` under the SIL Open Font License, so the PDF looks the same on Windows, macOS and Linux. The puzzle page always keeps the grid and both clue columns together: the clues are measured first, the grid is sized to the space left, and the clue text steps down a size (11.5 to 8.5 pt) if a long clue list needs it. Clue numbers are right-aligned with a hanging indent, and the letter count never wraps on its own.
 
 ## How the validation works
 
