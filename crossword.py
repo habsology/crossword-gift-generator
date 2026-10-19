@@ -293,20 +293,19 @@ def render(order, out, pagesize=None):
         cv.rect(M * 0.6 + 4, M * 0.6 + 4, W - M * 1.2 - 8, H - M * 1.2 - 8)
 
     def header(page_label, working=True):
-        """Title block and frame. working=False leaves off the page label and footer (keepsake page)."""
+        """Title block and frame. Pages carry no corner label; working=False also drops the footer (keepsake page)."""
         frame()
         cv.setFillColor(colors.black)
         size = 24 if len(title) <= 34 else 19
         cv.setFont(FONTS["title"], size); cv.drawCentredString(W / 2, H - 1.15 * inch, title)
         cv.setFillColor(accent); cv.setFont(FONTS["italic"], 12)
-        cv.drawCentredString(W / 2, H - 1.42 * inch, sub if sub else page_label)
+        if sub:
+            cv.drawCentredString(W / 2, H - 1.42 * inch, sub)
         cv.setStrokeColor(accent); cv.setLineWidth(0.8)
         cv.line(W / 2 - 1.1 * inch, H - 1.56 * inch, W / 2 + 1.1 * inch, H - 1.56 * inch)
-        if working:
-            cv.setFillColor(colors.HexColor("#555555")); cv.setFont(FONTS["body"], 8.5)
-            cv.drawRightString(W - M - 2, M * 0.6 + 10, page_label.upper())
-            if foot:
-                cv.setFont(FONTS["italic"], 9); cv.drawCentredString(W / 2, M * 0.6 + 10, foot)
+        if working and foot:
+            cv.setFillColor(colors.HexColor("#555555"))
+            cv.setFont(FONTS["italic"], 9); cv.drawCentredString(W / 2, M * 0.6 + 10, foot)
         cv.setFillColor(colors.black)
 
     r0, r1, c0, c1 = grid.bounds()
