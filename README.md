@@ -5,7 +5,7 @@ Turn a paragraph of memories about someone into a printable, personalized crossw
 Two scripts:
 
 - `clues.py` reads the memories, asks the local model for answer words and clues, and validates them (letters only, 3 to 15 letters, no duplicates, no answer hidden in its own clue, and every answer must actually appear in the memories).
-- `crossword.py` lays the entries out on a grid and renders a print-ready PDF: puzzle page, clues page, optional word search, solutions page. Deterministic for a given order, so re-runs reproduce the same grid.
+- `crossword.py` lays the entries out on a grid and renders a print-ready PDF: puzzle page (grid and clues), optional word search, answer key, and a keepsake page with the solved grid alone, ready to frame. Deterministic for a given order, so re-runs reproduce the same grid.
 
 ![Sample puzzle](docs/anniversary-1.jpg)
 
