@@ -15,7 +15,7 @@ order.json:
 
 Words: letters only (spaces and hyphens are stripped), 3 to 15 letters, 8 to 20 entries work best.
 Output: a print-ready PDF (US Letter) with the puzzle page (grid and clues), an optional word search, the answer key
-and a frame-ready keepsake page (solved grid, no label or footer). Deterministic for a given order (seeded), so re-runs reproduce the same grid.
+and a frame-ready keepsake page (the solved grid alone, larger, no clues or footer). Deterministic for a given order (seeded), so re-runs reproduce the same grid.
 """
 import json
 import os, random, re, sys
@@ -273,7 +273,7 @@ def render(order, out, pagesize=None):
     """Render an order to `out`. pagesize: None/"letter" (default) or "a4"; the order's
     "paper" key ("letter" or "a4") is used when pagesize is not given.
     Page 1 holds the puzzle grid and the clues together; then the optional word search; then the answer key;
-    then (unless "keepsake" is false) a keepsake page: the solved puzzle with no page label or footer."""
+    then (unless "keepsake" is false) a keepsake page: the solved grid alone, larger and centred, no clues or footer."""
     _register_fonts()
     entries = order["entries"]
     grid, leftover = build(entries, seed=order.get("seed", 0))
@@ -369,9 +369,11 @@ def render(order, out, pagesize=None):
     if order.get("keepsake", True):
         cv.showPage()
         header("Keepsake", working=False)
-        draw_grid(cv, grid, nums, gx, gy, cell, solution=True, accent=accent)
-        if clues_on_page1:
-            _clue_columns(cv, across, down, M, y_top, col_w, col_gap, size=clue_size)
+        k_top, k_bottom = top, M * 0.6 + 0.45 * inch
+        k_cell = min(0.5 * inch, (k_top - k_bottom) / rows, (W - 2 * M) / cols_n)
+        kx = (W - cols_n * k_cell) / 2
+        ky = k_top - ((k_top - k_bottom) - rows * k_cell) / 2
+        draw_grid(cv, grid, nums, kx, ky, k_cell, solution=True, accent=accent)
     cv.save()
     return grid, leftover, ws_placed
 
