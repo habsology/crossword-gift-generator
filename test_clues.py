@@ -54,7 +54,7 @@ def test_chat_is_called_with_prompt(monkeypatch):
 
 
 def test_validate_rejects_answers_not_in_memories():
-    # recorded from the 2026-10-16 gemma3:4b run on Matt's PC: PRAMA, YEARS and LOVE are not in the text
+    # recorded from the 2026-10-16 gemma3:4b runs in docs/gemma-runs.md: PRAMA, YEARS and LOVE are not in the text
     memories = "Sam proposed in Lisbon. Priya loves Tiramisu and Pancakes on Sundays. Scrabble nights."
     pairs = [("Lisbon", "Where Sam popped the question"), ("PRAMA", "Priya's sweet Sunday treat"),
              ("YEARS", "Celebrating this milestone"), ("LOVE", "The foundation"), ("Scrabble", "Word nights"),

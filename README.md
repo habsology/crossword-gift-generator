@@ -21,7 +21,7 @@ python3 clues.py samples/anniversary-memories.txt order.json --title "Happy 10th
 python3 crossword.py order.json puzzle.pdf
 ```
 
-On Windows use `py` instead of `python3`. Needs Python 3.10 or newer. `--mock` does not use a model: it picks names and distinctive words from your text and writes fill-in-the-blank clues ("Sam proposed in ____"). That proves the pipeline and the PDF work. For warmer, more specific clues, set up the local model below.
+On Windows use `py` instead of `python3`. Needs Python 3.10 or newer. `--mock` does not use a model: it picks capitalized words from your text (names, places, pets) and writes fill-in-the-blank clues from the sentence each one came from ("Sam proposed in ____"). That proves the pipeline and the PDF work. For warmer, more specific clues, set up the local model below.
 
 ## Setup for real clues (Ollama and Gemma)
 
@@ -115,6 +115,8 @@ pytest
 ## How the validation works
 
 Small models invent words and pad lists with generic answers. `clues.py` builds the set of words in the memories (plus adjacent pairs, so "New York" becomes NEWYORK) and rejects any answer outside it. On a 4B model that turns roughly 85 percent of the raw candidates into usable entries, which is why the script asks for a few more candidates than it needs.
+
+The three raw runs that led to that rule, with every clue the model wrote and the timings, are in [`docs/gemma-runs.md`](docs/gemma-runs.md).
 
 ## Samples
 
