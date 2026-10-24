@@ -36,3 +36,22 @@ def test_helvetica_fallback_still_fits(tmp_path, monkeypatch):
     out = tmp_path / "helv.pdf"
     crossword.render(_order("Took an unexpected turn during the Tofino honeymoon, with everyone watching"), str(out))
     assert len(PdfReader(str(out)).pages) == 4
+
+
+def test_poster_is_vector_and_sized():
+    """Poster output: puzzle + keepsake pages at the poster size, no raster images, all fonts embedded."""
+    import json, os, tempfile
+    from pypdf import PdfReader
+    import crossword
+    order = json.load(open(os.path.join(os.path.dirname(__file__), "samples", "wedding.json")))
+    with tempfile.TemporaryDirectory() as d:
+        out = os.path.join(d, "poster.pdf")
+        crossword.render_poster(order, out, "24x36")
+        r = PdfReader(out)
+        assert len(r.pages) == 2
+        for p in r.pages:
+            assert round(float(p.mediabox.width)) == 24 * 72 and round(float(p.mediabox.height)) == 36 * 72
+            assert not p.images
+            for f in p["/Resources"]["/Font"].values():
+                desc = f.get_object().get("/FontDescriptor")
+                assert desc is not None and "/FontFile2" in desc.get_object(), f.get_object()["/BaseFont"]
