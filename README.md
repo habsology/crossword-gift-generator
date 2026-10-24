@@ -97,6 +97,7 @@ Then:
 python3 clues.py samples/anniversary-memories.txt order.json --title "Happy 10th Anniversary, Sam & Priya"
 python3 crossword.py order.json puzzle.pdf          # US Letter
 python3 crossword.py order.json puzzle-a4.pdf a4    # A4
+python3 crossword.py order.json poster.pdf 24x36    # poster: puzzle + keepsake pages (18x24, 24x36, a2, a1, a0)
 ```
 
 `clues.py` prints the accepted entries, the rejected candidates with the reason, and the run time. The first call to a cold model can take a minute or more while Ollama loads it; the script sends a warm-up request first and allows 300 seconds.
@@ -114,7 +115,7 @@ pytest
 
 ## Fonts and layout
 
-Titles use Caladea and text uses Carlito; both ship in `fonts/` under the SIL Open Font License, so the PDF looks the same on Windows, macOS and Linux. The puzzle page always keeps the grid and both clue columns together: the clues are measured first, the grid is sized to the space left, and the clue text steps down a size (11.5 to 8.5 pt) if a long clue list needs it. Clue numbers are right-aligned with a hanging indent, and the letter count never wraps on its own.
+Titles use Caladea and text uses Carlito; both ship in `fonts/` under the SIL Open Font License, so the PDF looks the same on Windows, macOS and Linux. Everything is vector (no images) and every font is embedded, so pages print sharp at any size; the poster sizes scale the Letter layout (inch sizes) or the A4 layout (ISO sizes) onto the bigger sheet and keep the puzzle page and the keepsake page. The puzzle page always keeps the grid and both clue columns together: the clues are measured first, the grid is sized to the space left, and the clue text steps down a size (11.5 to 8.5 pt) if a long clue list needs it. Clue numbers are right-aligned with a hanging indent, and the letter count never wraps on its own.
 
 ## How the validation works
 

@@ -3,6 +3,8 @@
 Usage:
   python3 crossword.py order.json out.pdf          # US Letter
   python3 crossword.py order.json out-a4.pdf a4    # A4
+  python3 crossword.py order.json poster.pdf 18x24 # poster: puzzle page + keepsake page, 18x24 in
+                                                   # (also 24x36, a2, a1, a0)
 
 order.json:
 {
@@ -16,6 +18,9 @@ order.json:
 Words: letters only (spaces and hyphens are stripped), 3 to 15 letters, 8 to 20 entries work best.
 Output: a print-ready PDF (US Letter) with the puzzle page (grid and clues), an optional word search, the answer key
 and a frame-ready keepsake page (the solved grid alone, larger, no clues or footer). Deterministic for a given order (seeded), so re-runs reproduce the same grid.
+Everything is vector (text, lines, grid; no images) with all fonts embedded, so every page prints sharp at any
+size. Poster sizes scale the Letter layout (inch sizes) or the A4 layout (ISO sizes) onto the bigger sheet,
+centred, and keep only the puzzle page and the keepsake page.
 """
 import json
 import os, random, re, sys
@@ -281,7 +286,9 @@ def render(order, out, pagesize=None):
     paper = (pagesize or order.get("paper") or "letter").lower()
     W, H = A4 if paper == "a4" else letter
     accent = colors.HexColor(order.get("accent", "#8C2F39"))
-    cv = canvas.Canvas(out, pagesize=(W, H))
+    # initialFontName: without it reportlab declares an unembedded Helvetica on every page, which print-shop
+    # preflight flags even though no text uses it.
+    cv = canvas.Canvas(out, pagesize=(W, H), initialFontName=FONTS["body"], initialFontSize=10)
     cv.setTitle(order.get("title", "Custom crossword"))
     title, sub, foot = order.get("title", ""), order.get("subtitle", ""), order.get("footer", "")
     M = 0.6 * inch  # page margin
@@ -377,7 +384,41 @@ def render(order, out, pagesize=None):
     cv.save()
     return grid, leftover, ws_placed
 
+POSTER_SIZES = {  # name: (width, height, base layout)
+    "18x24": (18 * inch, 24 * inch, "letter"),
+    "24x36": (24 * inch, 36 * inch, "letter"),
+    "a2": (420 / 25.4 * inch, 594 / 25.4 * inch, "a4"),
+    "a1": (594 / 25.4 * inch, 841 / 25.4 * inch, "a4"),
+    "a0": (841 / 25.4 * inch, 1189 / 25.4 * inch, "a4"),
+}
+
+def render_poster(order, out, size="18x24"):
+    """Poster PDF: the puzzle page and the keepsake page of the base layout, scaled up (vector, lossless)
+    to fill the poster sheet and centred. Needs pypdf."""
+    import io
+    from pypdf import PdfReader, PdfWriter, PageObject, Transformation
+    Wp, Hp, base = POSTER_SIZES[size.lower()]
+    buf = io.BytesIO()
+    result = render(order, buf, base)
+    src = PdfReader(io.BytesIO(buf.getvalue()))
+    keep = [src.pages[0]] + ([src.pages[-1]] if order.get("keepsake", True) else [])
+    writer = PdfWriter()
+    for page in keep:
+        w, h = float(page.mediabox.width), float(page.mediabox.height)
+        k = min(Wp / w, Hp / h)
+        blank = PageObject.create_blank_page(width=Wp, height=Hp)
+        blank.merge_transformed_page(page, Transformation().scale(k).translate((Wp - w * k) / 2, (Hp - h * k) / 2))
+        writer.add_page(blank)
+    writer.add_metadata({"/Title": order.get("title", "Custom crossword")})
+    with open(out, "wb") as f:
+        writer.write(f)
+    return result
+
 if __name__ == "__main__":
     order = json.load(open(sys.argv[1]))
-    grid, leftover, _ = render(order, sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)
+    size = sys.argv[3] if len(sys.argv) > 3 else None
+    if size and size.lower() in POSTER_SIZES:
+        grid, leftover, _ = render_poster(order, sys.argv[2], size)
+    else:
+        grid, leftover, _ = render(order, sys.argv[2], size)
     print(f"placed {len(grid.placed)} words; left out: {[w for w, _ in leftover]}")
