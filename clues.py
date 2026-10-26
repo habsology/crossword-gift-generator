@@ -19,6 +19,7 @@ import os
 import re
 import sys
 import time
+import unicodedata
 import urllib.request
 
 ENDPOINT = os.environ.get("CLUE_ENDPOINT", "http://localhost:11434/v1/chat/completions")
@@ -37,7 +38,9 @@ SYSTEM = (
 
 
 def clean(word):
-    return re.sub(r"[^A-Z]", "", str(word).upper())
+    """Upper-case A-Z only; accents are folded (Québec -> QUEBEC), not dropped."""
+    folded = unicodedata.normalize("NFD", str(word)).encode("ascii", "ignore").decode()
+    return re.sub(r"[^A-Z]", "", folded.upper())
 
 
 def warm_up(endpoint=ENDPOINT, model=MODEL, timeout=300):

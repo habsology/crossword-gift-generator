@@ -55,3 +55,10 @@ def test_poster_is_vector_and_sized():
             for f in p["/Resources"]["/Font"].values():
                 desc = f.get_object().get("/FontDescriptor")
                 assert desc is not None and "/FontFile2" in desc.get_object(), f.get_object()["/BaseFont"]
+
+
+def test_clean_folds_accents():
+    assert crossword.clean("Québec") == "QUEBEC"
+    assert crossword.clean("Montréal-Nord") == "MONTREALNORD"
+    assert crossword.clean("Zoë") == "ZOE"
+    assert crossword.clean("Hello World 42!") == "HELLOWORLD"

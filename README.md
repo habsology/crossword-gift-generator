@@ -127,6 +127,10 @@ The three raw runs that led to that rule, with every clue the model wrote and th
 
 `samples/` holds fictional orders for ten occasions (anniversary, birthday, Christmas, graduation, housewarming, new baby, retirement, teacher, Valentine's, wedding) with the rendered PDFs.
 
+## Gemma terms of use
+
+This project does not include or redistribute any Gemma weights. If you pull Gemma (for example `ollama pull gemma3:4b`), the model is provided by Google under the [Gemma Terms of Use](https://ai.google.dev/gemma/terms) and the [Gemma Prohibited Use Policy](https://ai.google.dev/gemma/prohibited_use_policy), which are separate from this project's MIT licence. Read them before using the output commercially. Output from the model is yours to use under those terms; you are responsible for what you generate with it.
+
 ## License
 
 MIT, see `LICENSE`.

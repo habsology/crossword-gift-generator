@@ -23,7 +23,7 @@ size. Poster sizes scale the Letter layout (inch sizes) or the A4 layout (ISO si
 centred, and keep only the puzzle page and the keepsake page.
 """
 import json
-import os, random, re, sys
+import os, random, re, sys, unicodedata
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
@@ -32,7 +32,9 @@ from reportlab.lib import colors
 ACROSS, DOWN = "across", "down"
 
 def clean(word):
-    return re.sub(r"[^A-Z]", "", word.upper())
+    """Upper-case A-Z only; accents are folded (Québec -> QUEBEC), not dropped."""
+    folded = unicodedata.normalize("NFD", str(word)).encode("ascii", "ignore").decode()
+    return re.sub(r"[^A-Z]", "", folded.upper())
 
 class Grid:
     def __init__(self, size):
