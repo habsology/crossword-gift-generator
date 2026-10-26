@@ -63,3 +63,10 @@ def test_validate_rejects_answers_not_in_memories():
     assert [e["word"] for e in entries] == ["Lisbon", "Scrabble", "Newyork"]
     assert {r[0] for r in rejected} == {"PRAMA", "YEARS", "LOVE", "Sunday"}  # LOVE != loves, Sunday != Sundays
     assert all(r[1] == "not in memories" for r in rejected)
+
+
+def test_clean_folds_accents():
+    assert clues.clean("Québec") == "QUEBEC"
+    assert clues.clean("Montréal-Nord") == "MONTREALNORD"
+    assert clues.clean("Zoë") == "ZOE"
+    assert clues.clean("Hello World 42!") == "HELLOWORLD"
